@@ -9,7 +9,8 @@ METHOD: Sentiment Analysis
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-packages = ["transformers"]
+packages = ["transformers", "torch"]
+import torch
 
 for package in packages:
     try:
@@ -18,6 +19,7 @@ for package in packages:
         install(package)
 
 from transformers import pipeline
+import torch
 
 classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis", device=0)
 THRESHOLD = 0.95 # Min threshold for sentiment score for bot
