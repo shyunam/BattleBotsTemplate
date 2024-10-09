@@ -10,7 +10,6 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 packages = ["transformers", "torch"]
-import torch
 
 for package in packages:
     try:
