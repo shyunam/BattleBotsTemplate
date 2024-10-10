@@ -1,15 +1,16 @@
 from abc_classes import ADetector
 from teams_classes import DetectionMark
+
 import subprocess
 import sys
 '''
-METHOD: Sentiment Analysis
+METHOD: Bot cluster detection
 '''
 
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-packages = ["transformers"]
+packages = ["scikit-learn", "numpy"]
 
 for package in packages:
     try:
@@ -17,51 +18,61 @@ for package in packages:
     except ImportError:
         install(package)
 
-from transformers import pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis", device=0)
-THRESHOLD = 0.95 # Min threshold for sentiment score for bot
+SIMILARITY_THRESHOLD = 0.4 # cosine similarity threshold for two posts to be considered simiilar
+BOT_THRESHOLD = 0.8 # % similar posts threshold to be considered a bot
 
 class Detector(ADetector):
-
     def detect_bot(self, session_data):
+
+        posts = [post['text'] for post in session_data.posts]
+        user_ids = [post['author_id'] for post in session_data.posts]
+        found_similar_post = [False] * len(session_data.posts)
+
+        vect = TfidfVectorizer().fit_transform(posts)
+        similarity_matrix = cosine_similarity(vect)
+
+        user_similarities = {user['id']: 0 for user in session_data.users}
+
+        for i in range(len(posts)):
+            for j in range(i+1, len(posts)):
+                if user_ids[i] != user_ids[j] and similarity_matrix[i][j] >= SIMILARITY_THRESHOLD:
+                    #print(f"{user_ids[i]}: {posts[i]}")
+                    #print(f"{user_ids[j]}: {posts[j]}")
+                    #print(f"Similarity: {similarity_matrix[i][j]}\n")
+
+                    # Count once for each post, even if multiple similar posts are found
+                    if not found_similar_post[i]:
+                        user_similarities[user_ids[i]] += 1
+                        found_similar_post[i] = True
+                    if not found_similar_post[j]:
+                        user_similarities[user_ids[j]] += 1
+                        found_similar_post[j] = True
+
         marked_account = []
-        user_scores = {} # Dictionary to track total sentiment scores per user
 
-        for user in session_data.users:
-            user_scores[user['id']] = 0
-
-        # Sentiment analysis by post
-        for post in session_data.posts:
-            user_id = post['author_id']
-            sentiment_result = classifier(post['text'])[0]
-            score = sentiment_result['score']
-
-            #print(user_id + ' ' + post['text'] + ' ' + str(score) + ' ' + sentiment_result['label'])
-
-            if user_id in user_scores and sentiment_result['label']!='NEU':
-                user_scores[user_id] += score
-
-        # Detect bots
         for user in session_data.users:
             user_id = user['id']
             tweet_count = user['tweet_count']
-            total_score = user_scores[user_id]
-
-            average_score = 0
-            confidence = 0
+            similarity_score = user_similarities[user_id]
 
             if tweet_count == 0:
-                average_score = THRESHOLD
-                confidence = 100
+                average_similarity = 1
             else:
-                average_score = total_score/tweet_count
-                if average_score >= THRESHOLD: # if bot
-                    confidence = average_score
-                else: # if not bot
-                    confidence = (1-average_score)*100
+                average_similarity = similarity_score / tweet_count
             
-            #print(user_id + ' ' + str(average_score))
-            marked_account.append(DetectionMark(user_id=user_id, confidence=int(confidence), bot=(average_score>=THRESHOLD)))
+            #print(f"{user_id}: avg similarity {average_similarity}")
+            
+            is_bot = average_similarity >= BOT_THRESHOLD
+
+            if is_bot:
+                    confidence = int(average_similarity*100)
+            else:
+                confidence = int((1-average_similarity)*100)
+            
+            marked_account.append(DetectionMark(user_id=user_id, confidence=confidence, bot=is_bot))
 
         return marked_account
+    
