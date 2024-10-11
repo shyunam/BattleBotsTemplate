@@ -1,27 +1,11 @@
 from abc_classes import ADetector
 from teams_classes import DetectionMark
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-import subprocess
-import sys
 '''
 METHOD: Bot cluster detection
 '''
-
-'''
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-packages = ["scikit-learn", "numpy"]
-
-for package in packages:
-    try:
-        __import__(package)
-    except ImportError:
-        install(package)
-'''
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 SIMILARITY_THRESHOLD = 0.4 # cosine similarity threshold for two posts to be considered simiilar
 BOT_THRESHOLD = 0.8 # % similar posts threshold to be considered a bot
