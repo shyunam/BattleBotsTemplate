@@ -7,6 +7,7 @@ import sys
 METHOD: Bot cluster detection
 '''
 
+'''
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
@@ -17,6 +18,7 @@ for package in packages:
         __import__(package)
     except ImportError:
         install(package)
+'''
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
