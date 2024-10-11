@@ -1,24 +1,11 @@
 from abc_classes import ADetector
 from teams_classes import DetectionMark
-import subprocess
-import sys
+from transformers import pipeline
+import torch
+
 '''
 METHOD: Sentiment Analysis
 '''
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-packages = ["transformers", "torch"]
-
-for package in packages:
-    try:
-        __import__(package)
-    except ImportError:
-        install(package)
-
-from transformers import pipeline
-import torch
 
 classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis", device=0)
 THRESHOLD = 0.95 # Min threshold for sentiment score for bot
