@@ -7,7 +7,7 @@ import torch
 METHOD: Sentiment Analysis
 '''
 
-classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis", device=0)
+classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
 THRESHOLD = 0.95 # Min threshold for sentiment score for bot
 
 class Detector(ADetector):
@@ -45,11 +45,11 @@ class Detector(ADetector):
             else:
                 average_score = total_score/tweet_count
                 if average_score >= THRESHOLD: # if bot
-                    confidence = average_score
+                    confidence = average_score*100
                 else: # if not bot
                     confidence = (1-average_score)*100
             
-            #print(user_id + ' ' + str(average_score))
+            print(user_id + ' ' + str(average_score))
             marked_account.append(DetectionMark(user_id=user_id, confidence=int(confidence), bot=(average_score>=THRESHOLD)))
 
         return marked_account
