@@ -22,7 +22,7 @@ class Detector(ADetector):
         # Sentiment analysis by post
         for post in session_data.posts:
             user_id = post['author_id']
-            sentiment_result = classifier(post['text'])[0]
+            sentiment_result = classifier(post['text'], truncation=True)[0]
             score = sentiment_result['score']
 
             #print(user_id + ' ' + post['text'] + ' ' + str(score) + ' ' + sentiment_result['label'])
@@ -35,21 +35,33 @@ class Detector(ADetector):
             user_id = user['id']
             tweet_count = user['tweet_count']
             total_score = user_scores[user_id]
+            z_score = user['z_score']
 
             average_score = 0
             confidence = 0
+            is_bot = False
 
             if tweet_count == 0:
                 average_score = THRESHOLD
                 confidence = 100
+                is_bot = True
             else:
                 average_score = total_score/tweet_count
-                if average_score >= THRESHOLD: # if bot
+                if average_score >= THRESHOLD:
                     confidence = average_score*100
-                else: # if not bot
+                    is_bot = True
+                else: 
                     confidence = (1-average_score)*100
             
-            print(user_id + ' ' + str(average_score))
-            marked_account.append(DetectionMark(user_id=user_id, confidence=int(confidence), bot=(average_score>=THRESHOLD)))
+            # Case where tweet count attribute is wrong
+            if confidence > 100:
+                confidence = 100
+                is_bot = True
+            
+            if z_score == 0:
+                is_bot = True
+            
+            #print(user_id + ' ' + str(average_score))
+            marked_account.append(DetectionMark(user_id=user_id, confidence=int(confidence), bot=is_bot))
 
         return marked_account
