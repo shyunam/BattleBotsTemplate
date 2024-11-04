@@ -9,6 +9,7 @@ RUN pip install pydantic
     #export PATH="/root/.cargo/bin:${PATH}" && \
     #pip install 'transformers[torch]'
 RUN pip install 'transformers[torch]'
+RUN pip install emoji==0.6.0
 
 #Important so we will have access to the run.sh file 
 COPY . . 
