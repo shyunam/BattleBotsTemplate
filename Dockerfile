@@ -8,8 +8,7 @@ RUN pip install pydantic
     #curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     #export PATH="/root/.cargo/bin:${PATH}" && \
     #pip install 'transformers[torch]'
-RUN pip install 'transformers[torch]'
-RUN pip install emoji==0.6.0
+RUN pip install transformers[torch] emoji==0.6.0
 
 #Important so we will have access to the run.sh file 
 COPY . . 
