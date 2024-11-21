@@ -8,7 +8,7 @@ METHOD: Bot cluster detection
 '''
 
 SIMILARITY_THRESHOLD = 0.4 # cosine similarity threshold for two posts to be considered simiilar
-BOT_THRESHOLD = 0.8 # % similar posts threshold to be considered a bot
+BOT_THRESHOLD = 0.9 # % similar posts threshold to be considered a bot
 
 class Detector(ADetector):
     def detect_bot(self, session_data):
