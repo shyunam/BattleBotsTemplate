@@ -15,9 +15,11 @@ class Detector(ADetector):
     def detect_bot(self, session_data):
         marked_account = []
         user_scores = {} # Dictionary to track total sentiment scores per user
+        tweet_counts = {} 
 
         for user in session_data.users:
             user_scores[user['id']] = 0
+            tweet_counts[user['id']] = 0
 
         # Sentiment analysis by post
         for post in session_data.posts:
@@ -26,6 +28,7 @@ class Detector(ADetector):
             score = sentiment_result['score']
 
             #print(user_id + ' ' + post['text'] + ' ' + str(score) + ' ' + sentiment_result['label'])
+            tweet_counts[user_id] += 1
 
             if user_id in user_scores and sentiment_result['label']!='NEU':
                 user_scores[user_id] += score
@@ -33,7 +36,7 @@ class Detector(ADetector):
         # Detect bots
         for user in session_data.users:
             user_id = user['id']
-            tweet_count = user['tweet_count']
+            tweet_count = tweet_counts[user_id]
             total_score = user_scores[user_id]
             z_score = user['z_score']
 
