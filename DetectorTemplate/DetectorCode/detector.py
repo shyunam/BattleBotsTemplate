@@ -10,7 +10,7 @@ METHOD: Sentiment Analysis
 '''
 
 classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
-THRESHOLD = 0.95 # Min threshold for sentiment score for bot
+THRESHOLD = 0.55 # Min threshold for sentiment score for bot
 SPELLING_THRESHOLD = 0.01 # Min threshold for percentage of misspelled words
 
 class Detector(ADetector):
