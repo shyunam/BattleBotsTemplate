@@ -8,7 +8,7 @@ METHOD: Sentiment Analysis
 '''
 
 classifier = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
-THRESHOLD = 0.95 # Min threshold for sentiment score for bot
+THRESHOLD = 0.55 # Min threshold for sentiment score for bot
 
 class Detector(ADetector):
 
@@ -38,7 +38,6 @@ class Detector(ADetector):
             user_id = user['id']
             tweet_count = tweet_counts[user_id]
             total_score = user_scores[user_id]
-            z_score = user['z_score']
 
             average_score = 0
             confidence = 0
@@ -59,9 +58,6 @@ class Detector(ADetector):
             # Case where tweet count attribute is wrong
             if confidence > 100:
                 confidence = 100
-                is_bot = True
-            
-            if z_score == 0:
                 is_bot = True
             
             #print(user_id + ' ' + str(average_score))
