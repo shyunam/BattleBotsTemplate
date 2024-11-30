@@ -60,8 +60,7 @@ class Detector(ADetector):
             user_id = user['id']
             tweet_count = tweet_counts[user_id]
             total_score = user_scores[user_id]
-            z_score = user['z_score']
-
+            
             misspelled = user_spelling_scores[user_id]['misspelled']
             total_words = user_spelling_scores[user_id]['total']
             misspelled_percentage = (misspelled / total_words) if total_words > 0 else 1
@@ -92,9 +91,7 @@ class Detector(ADetector):
             if confidence > 100:
                 confidence = 100
                 is_bot = True
-            
-            if z_score == 0:
-                is_bot = True
+
             
             #print(user_id + ' ' + str(average_score))
             marked_account.append(DetectionMark(user_id=user_id, confidence=int(confidence), bot=is_bot))
